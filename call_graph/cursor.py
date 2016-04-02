@@ -1,6 +1,10 @@
 import re
 
 
+class Python:
+    definition_regex = r' *def ([^ ]+)\('
+
+
 class Cursor:
 
     def __init__(self, fp, line=0, col=0):
@@ -18,3 +22,16 @@ class Cursor:
         lines = self.buffer.splitlines()
         return sum(len(line) + 1
                    for line in lines[:line_num]) + col_num
+
+
+def get_enclosing_function(cursor, language):
+    while True:
+        match = cursor.looking_at(language.definition_regex)
+        if match:
+            [fn_name] = match.groups()
+            return fn_name
+        else:
+            if cursor.offset:
+                cursor.offset -= 1
+            else:
+                return None
