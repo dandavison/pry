@@ -1,2 +1,2 @@
 lint:
-	find call_graph tests -name '*.py' | xargs flake8
+	find bin call_graph tests | xargs flake8
