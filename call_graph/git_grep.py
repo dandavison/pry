@@ -10,6 +10,9 @@ class Hit:
         self.line = int(line)
         self.text = text
 
+    def __repr__(self):
+        return '%s:%d:%s' % tuple(self)
+
     @classmethod
     def from_raw(cls, output):
         match = re.match(Hit.regex, output.decode('utf-8'))

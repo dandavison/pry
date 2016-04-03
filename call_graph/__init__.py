@@ -4,11 +4,17 @@ from call_graph.cursor import get_enclosing_function
 from call_graph.git_grep import grep
 
 
-def get_call_sites(pattern):
+def make_call_graph(pattern):
+    return {
+        caller: make_call_graph(caller)
+        for caller in get_callers(pattern)
+    }
+
+
+def get_callers(pattern):
+    print(pattern)
     hits = grep(pattern)
     for hit in hits:
         with open(hit.path) as fp:
             cursor = Cursor(fp, line=hit.line)
-        function = get_enclosing_function(cursor, Python)
-
-        print('%s:%d:%-90s %s' % (tuple(hit) + (function,)))
+        yield get_enclosing_function(cursor, Python)

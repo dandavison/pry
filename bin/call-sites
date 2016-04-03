@@ -2,7 +2,7 @@
 import argparse
 
 
-from call_graph import get_call_sites
+from call_graph import make_call_graph
 
 
 def parse_arguments():
@@ -19,4 +19,7 @@ def parse_arguments():
 
 
 args = parse_arguments()
-get_call_sites(args.pattern)
+graph = make_call_graph(args.pattern)
+
+for k, v in graph.items():
+    print('%-10s %s' % (k, v))
