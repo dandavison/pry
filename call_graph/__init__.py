@@ -1,20 +1,25 @@
-from call_graph.cursor import Cursor
-from call_graph.cursor import Python
-from call_graph.cursor import get_enclosing_function
-from call_graph.git_grep import grep
+import re
+
+from call_graph.grep import ag as grep
+from call_graph.languages import Python
 
 
-def make_call_graph(pattern):
-    return {
-        caller: make_call_graph(caller)
-        for caller in get_callers(pattern)
-    }
+def make_call_graph(function):
+    call_sites = grep(function)
+    call_graph = {}
+    for call_site in call_sites:
+        print(call_site)
 
+        if re.match(Python.function_regex, call_site.text.strip()):
+            print('skipping definition')
+            # It's the function definition; not a call
+            continue
 
-def get_callers(pattern):
-    print(pattern)
-    hits = grep(pattern)
-    for hit in hits:
-        with open(hit.path) as fp:
-            cursor = Cursor(fp, line=hit.line)
-        yield get_enclosing_function(cursor, Python)
+        parent_function = call_site.get_enclosing_function(Python)
+
+        print('parent_function: %s' % parent_function)
+
+        if parent_function is not None:
+            call_graph[parent_function] = make_call_graph(parent_function)
+
+    return call_graph
