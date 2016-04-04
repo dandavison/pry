@@ -1,6 +1,9 @@
+import logging
 import re
 import subprocess
 from contextlib import contextmanager
+
+logger = logging.getLogger(__file__)
 
 PYTHON_INDENTATION = 4
 
@@ -63,7 +66,9 @@ class Cursor:
             match = self.looking_at(r'( *)[^ ]')
             assert match
             indentation = len(match.groups()[0])
-            assert not indentation % PYTHON_INDENTATION
+            if indentation % PYTHON_INDENTATION:
+                logger.warning("Indentation is not a multiple of 4: %s" %
+                               indentation)
             return indentation
 
     def __eq__(self, other):
