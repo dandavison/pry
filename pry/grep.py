@@ -5,7 +5,9 @@ from contextlib import contextmanager
 
 logger = logging.getLogger(__file__)
 
-PYTHON_INDENTATION = 4
+
+INDENTATION_UNIT = 4
+AG_LANGUAGE = '--python'
 
 
 class Cursor:
@@ -66,13 +68,19 @@ class Cursor:
             match = self.looking_at(r'( *)[^ ]')
             assert match
             indentation = len(match.groups()[0])
-            if indentation % PYTHON_INDENTATION:
-                logger.warning("Indentation is not a multiple of 4: %s" %
-                               indentation)
+            if indentation % INDENTATION_UNIT:
+                logger.warning("%s indentation is not a multiple of %s: %s" %
+                               (self, INDENTATION_UNIT, indentation))
             return indentation
+
+    def __iter__(self):
+        return iter((self.path, self.i, self.j, self.text))
 
     def __eq__(self, other):
         tuple(self) == tuple(other)
+
+    def __repr__(self):
+        return '%s:%d:%d:%s' % tuple(self)
 
 
 class Hit(Cursor):
@@ -91,16 +99,10 @@ class Hit(Cursor):
 class AgHit(Hit):
     regex = re.compile(r'([a-zA-Z0-9\./_-]+):(\d+):(\d+):(.+)')
 
-    def __iter__(self):
-        return iter((self.path, self.i, self.j, self.text))
-
-    def __repr__(self):
-        return '%s:%d:%d:%s' % tuple(self)
-
 
 def ag(pattern):
     output = subprocess.check_output([
-        'ag', '--noheading', '--column', '--nobreak',
+        'ag', '--noheading', '--column', '--nobreak', AG_LANGUAGE,
         '%s' % pattern,
     ])
     return list(map(AgHit.from_raw, output.strip().splitlines()))
