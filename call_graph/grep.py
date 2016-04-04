@@ -58,7 +58,13 @@ class Cursor:
         return None
 
     def get_indentation(self):
-        raise NotImplementedError
+        with self.save_excursion():
+            self.j = 0
+            match = self.looking_at(r'( *)[^ ]')
+            assert match
+            indentation = len(match.groups()[0])
+            assert not indentation % PYTHON_INDENTATION
+            return indentation
 
     def __eq__(self, other):
         tuple(self) == tuple(other)
@@ -86,18 +92,13 @@ class AgHit(Hit):
     def __repr__(self):
         return '%s:%d:%d:%s' % tuple(self)
 
-    def get_indentation(self):
-        with self.save_excursion():
-            self.j = 0
-            match = self.looking_at(r'( *)[^ ]')
-            assert match
-            indentation = len(match.groups()[0])
-            assert not indentation % PYTHON_INDENTATION
-            return indentation
-
 
 class GitGrepHit(Hit):
     regex = re.compile(r'([a-zA-Z0-9\./_-]+):(\d+):(.+)')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.col = None
 
     def __iter__(self):
         return iter((self.path, self.i, self.text))
