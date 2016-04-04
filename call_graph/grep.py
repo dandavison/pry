@@ -2,6 +2,8 @@ import re
 import subprocess
 from contextlib import contextmanager
 
+PYTHON_INDENTATION = 4
+
 
 class Cursor:
 
@@ -43,14 +45,16 @@ class Cursor:
         self.pos = i, j
 
     def get_enclosing_function(self, language):
+        current_indentation = self.get_indentation()
         with self.save_excursion():
             self.j = 0
             while self.i:
                 self.i -= 1
                 match = self.looking_at(language.function_regex)
                 if match:
-                    indentation, function = match.groups()
-                    return function
+                    indentation_text, function = match.groups()
+                    if len(indentation_text) < current_indentation:
+                        return function
         return None
 
     def get_indentation(self):
@@ -85,9 +89,11 @@ class AgHit(Hit):
     def get_indentation(self):
         with self.save_excursion():
             self.j = 0
-            match = self.looking_at(r'( +)[^ ]')
+            match = self.looking_at(r'( *)[^ ]')
             assert match
-            return len(match.groups()[0])
+            indentation = len(match.groups()[0])
+            assert not indentation % PYTHON_INDENTATION
+            return indentation
 
 
 class GitGrepHit(Hit):
