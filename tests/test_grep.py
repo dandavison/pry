@@ -37,7 +37,6 @@ class TestGrep(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        print(cls.directory)
         shutil.rmtree(cls.directory)
 
     def test_grep(self):
