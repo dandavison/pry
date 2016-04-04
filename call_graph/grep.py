@@ -93,6 +93,14 @@ class AgHit(Hit):
         return '%s:%d:%d:%s' % tuple(self)
 
 
+def ag(pattern):
+    output = subprocess.check_output([
+        'ag', '--noheading', '--column', '--nobreak',
+        '%s' % pattern,
+    ])
+    return list(map(AgHit.from_raw, output.strip().splitlines()))
+
+
 class GitGrepHit(Hit):
     regex = re.compile(r'([a-zA-Z0-9\./_-]+):(\d+):(.+)')
 
@@ -105,14 +113,6 @@ class GitGrepHit(Hit):
 
     def __repr__(self):
         return '%s:%d:%s' % tuple(self)
-
-
-def ag(pattern):
-    output = subprocess.check_output([
-        'ag', '--noheading', '--column', '--nobreak',
-        '%s' % pattern,
-    ])
-    return list(map(AgHit.from_raw, output.strip().splitlines()))
 
 
 def git_grep(pattern):
