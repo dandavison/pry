@@ -2,8 +2,8 @@ import os
 import tempfile
 from unittest import TestCase
 
-from call_graph.grep import Cursor
-from call_graph.languages import Python
+from pry.grep import Cursor
+from pry.languages import Python
 
 
 TEST_FILE_CONTENTS_1 = """\

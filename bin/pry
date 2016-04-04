@@ -2,7 +2,7 @@
 import argparse
 
 
-from call_graph import make_call_graph
+from pry import make_call_graph
 
 
 def parse_arguments():

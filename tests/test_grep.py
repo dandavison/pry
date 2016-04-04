@@ -4,7 +4,7 @@ import os
 import shutil
 import tempfile
 
-from call_graph.grep import ag as grep
+from pry.grep import ag as grep
 
 
 TEST_FILE_CONTENTS_1 = """\

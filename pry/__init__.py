@@ -1,8 +1,8 @@
 import logging
 import re
 
-from call_graph.grep import ag as grep
-from call_graph.languages import Python
+from pry.grep import ag as grep
+from pry.languages import Python
 
 logger = logging.getLogger(__file__)
 debug = logger.debug
