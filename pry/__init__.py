@@ -1,3 +1,4 @@
+import argparse
 import logging
 import re
 
@@ -47,3 +48,22 @@ def print_call_graph(graph, level=0):
         else:
             print('{indent}{key}'.format(**locals()))
             print_call_graph(subgraph, level + 1)
+
+
+def parse_arguments():
+    arg_parser = argparse.ArgumentParser(
+        description="Find call sites",
+    )
+
+    arg_parser.add_argument(
+        'pattern',
+        help="Pattern to search for",
+    )
+
+    return arg_parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    graph = make_call_graph(args.pattern)
+    print_call_graph(graph)
