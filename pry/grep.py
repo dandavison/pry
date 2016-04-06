@@ -3,6 +3,9 @@ import re
 import subprocess
 from contextlib import contextmanager
 
+from pry.parse import get_defs
+
+
 logger = logging.getLogger(__file__)
 
 
@@ -12,6 +15,7 @@ AG_LANGUAGE = '--python'
 
 class Cursor:
     lines_cache = {}
+    defs_cache = {}
 
     def __init__(self, path, line, col, text=None):
         self.path = path
@@ -22,6 +26,13 @@ class Cursor:
         if self.path not in self.lines_cache:
             with open(self.path) as fp:
                 self.lines_cache[self.path] = fp.read().splitlines()
+
+        if self.path not in self.defs_cache:
+            self.defs_cache[self.path] = get_defs(self.path)
+
+    @property
+    def defs(self):
+        return self.defs_cache[self.path]
 
     @property
     def lines(self):
@@ -55,17 +66,11 @@ class Cursor:
         self.pos = i, j
 
     def get_enclosing_function(self, language):
-        current_indentation = self.get_indentation()
-        with self.save_excursion():
-            self.j = 0
-            while self.i:
-                self.i -= 1
-                match = self.looking_at(language.function_regex)
-                if match:
-                    indentation_text, function = match.groups()
-                    if len(indentation_text) < current_indentation:
-                        return function
-        return None
+        return next(
+            path
+            for (i, j), path in reversed(list(self.defs.items()))
+            if i < self.i and j < self.j
+        )
 
     def get_indentation(self):
         with self.save_excursion():
