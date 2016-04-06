@@ -11,6 +11,7 @@ AG_LANGUAGE = '--python'
 
 
 class Cursor:
+    lines_cache = {}
 
     def __init__(self, path, line, col, text=None):
         self.path = path
@@ -18,9 +19,13 @@ class Cursor:
         self.j = int(col) - 1
         self.text = text
 
-        with open(self.path) as fp:
-            self.buffer = fp.read()
-        self.lines = self.buffer.splitlines()
+        if self.path not in self.lines_cache:
+            with open(self.path) as fp:
+                self.lines_cache[self.path] = fp.read().splitlines()
+
+    @property
+    def lines(self):
+        return self.lines_cache[self.path]
 
     @property
     def pos(self):
