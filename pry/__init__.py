@@ -67,3 +67,7 @@ def main():
     args = parse_arguments()
     graph = make_call_graph(args.pattern)
     print_call_graph(graph)
+
+
+if __name__ == '__main__':
+    main()

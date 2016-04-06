@@ -1,0 +1,8 @@
+#!/bin/bash -eu
+regex=$1
+data_file=/tmp/profile.stats
+image_file=/tmp/profile.svg
+python -m cProfile -o $data_file ~/src/1p/pry/pry/__init__.py $regex
+gprof2dot -f pstats $data_file | dot -Tsvg -o $image_file
+echo $data_file $image_file
+open -a "/Applications/Google Chrome.app" $image_file
